@@ -1,47 +1,127 @@
-import React,{useState,useEffect} from 'react';
-import customData from './data.json';
-import styled from 'styled-components';
-import {connect} from 'react-redux';
-import FavoriteButton from './FavoriteButton';
+import React, { useState, useEffect } from "react";
+import customData from "./data.json";
+import styled from "styled-components";
+import { connect } from "react-redux";
+import FavoriteButton from "./FavoriteButton";
+import axios from "axios";
 
-function Data({authenticated,user}) {
- const data = customData;
- const userid = user._id
+function Data({ authenticated, user }) {
+  const data = customData;
+  const userid = user._id;
+  //const [Favorited, setFavorited] = useState(false);
+  console.log(userid)
+  const variables = {
+    productId: data.title,
+    userFrom: userid,
+    productName: data.title,
+    productImage: data.imageLink,
+    productAuthor: data.author,
+  };
+
+  useEffect(() => {
+  
+
+      axios
+      .post(
+        "https://infinite-basin-79388.herokuapp.com/favorite/favorited",
+        variables
+      )
+      .then((response) => {
+        
+        if (response.data.success) {
+         
+         // setFavorited(response.data.favorites);  
+        } else {
+          alert("Failed to get Favorite Information");
+        }
+      });
+    
+       
+      }, []);
+    
+      const onClickFavorite = (favorite) => {
+        if (favorite) {
+          //when already added
+          axios
+            .post(
+              "https://infinite-basin-79388.herokuapp.com/favorite/removeFromFavorite",
+              variables
+            )
+            .then((response) => {
+              if (response.data.success) {
+               
+                //setFavorited(!Favorited);
+              } else {
+                alert("Failed to remove from Favorites");
+              }
+            });
+        } else {
+          //when not adding yet
+          axios
+            .post(
+              "https://infinite-basin-79388.herokuapp.com/favorite/addToFavorite",
+              variables
+            )
+            .then((response) => {
+              if (response.data.success) {
+                //setFavorited(!Favorited);
+              } else {
+                alert("Failed to add to Favorites");
+              }
+            });
+        }
+      };
+
+
+
+
+
 
 
   return (
     <div className="App">
-         <Content>
-     {
-       data && data.length>0 && data.map(
-        (item)=>(
-        <Card>
+      <Content>
+        {data &&
+          data.length > 0 &&
+          data.map((item) => (
+            <Card>
               <Wrap key={item.title}>
-        <p>{item.author}</p> <img
-       src={`../${item.imageLink}`}
-       alt={item.author}
-     /></Wrap><Bottom>
-     <Div>
-       <SubDiv>
-        
-         <div>
-           <H4>Author: {item.author} </H4>
-         </div>
-         <div>
-           <H4> Title: {item.title}</H4>
-         </div>
-       </SubDiv>
-       {authenticated && user ?   <SubDiv ><FavoriteButton data={item}userid={userid} /></SubDiv> :<SubDiv onClick={()=>alert("Please log in before add to favorite")}><Button >Add to Favorite</Button></SubDiv> }
-      </Div></Bottom></Card>))
-     }
-     </Content>
+                <p>{item.author}</p>{" "}
+                <img src={`../${item.imageLink}`} alt={item.author} />
+              </Wrap>
+              <Bottom>
+                <Div>
+                  <SubDiv>
+                    <div>
+                      <H4>Author: {item.author} </H4>
+                    </div>
+                    <div>
+                      <H4> Title: {item.title}</H4>
+                    </div>
+                  </SubDiv>
+                  {authenticated && user ? (
+                    <SubDiv>
+                      <FavoriteButton  onClickFavorite={ ()=> onClickFavorite(data.favorite)} Favorited={data.favorite} />
+                    </SubDiv>
+                  ) : (
+                    <SubDiv
+                      onClick={() =>
+                        alert("Please log in before add to favorite")
+                      }
+                    >
+                      <Button>Add to Favorite</Button>
+                    </SubDiv>
+                  )}
+                </Div>
+              </Bottom>
+            </Card>
+          ))}
+      </Content>
     </div>
   );
 }
 
-const Button = styled.button`
-
-`;
+const Button = styled.button``;
 
 const H4 = styled.h4`
   display: flex;
@@ -53,12 +133,11 @@ const H4 = styled.h4`
 const H1 = styled.h1`
   @media (max-width: 768px) {
     font-size: x-large;
-    
   }
 `;
 const Content = styled.div`
   padding: 10px;
- margin-top: 100px;
+  margin-top: 100px;
   display: grid;
   grid-gap: 25px;
   gap: 25px;
@@ -82,8 +161,8 @@ const Content = styled.div`
 `;
 
 const Card = styled.div`
- background-color: rgb(249,249,249);
- color: #090b13;
+  background-color: rgb(249, 249, 249);
+  color: #090b13;
   border-radius: 10px;
   box-shadow: rgb(0 0 0 / 69%) 0px 26px 30px -10px,
     rgb(0 0 0 / 73%) 0px 16px 10px -10px;
@@ -101,7 +180,7 @@ const Wrap = styled.div`
   border-radius: 10px;
   box-shadow: rgb(0 0 0 / 69%) 0px 26px 30px -10px,
     rgb(0 0 0 / 73%) 0px 16px 10px -10px;
-  
+
   overflow: hidden;
   position: relative;
   transition: all 250ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 0s;
@@ -141,8 +220,8 @@ const SubDiv = styled.div`
   cursor: pointer;
 `;
 
-const mapStateToProps = ({session}) => ({
-    authenticated:session.authenticated,
-    user:session.user
-  })
+const mapStateToProps = ({ session }) => ({
+  authenticated: session.authenticated,
+  user: session.user,
+});
 export default connect(mapStateToProps)(Data);
