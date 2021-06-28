@@ -6,14 +6,17 @@ import {
   StyledButton,
   ButtonGroup,
 } from "../components/Styles";
-
-function Home() {
+import { connect } from "react-redux";
+function Home({authenticated,user}) {
   return (
     <div>
       <div>All Products</div>
-      <Data/>
+      <Data user={user} authenticated={authenticated}/>
     </div>
   );
 }
-
-export default Home;
+const mapStateToProps = ({ session }) => ({
+  authenticated: session.authenticated,
+  user: session.user,
+});
+export default connect(mapStateToProps) (Home);

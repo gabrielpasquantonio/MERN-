@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyledTitle,
   StyledSubTitle,
@@ -9,7 +9,7 @@ import {
 } from "../components/Styles";
 import FavoriteData from "../components/FavoriteData";
 import styled from 'styled-components'
-
+import axios from 'axios'
 //auth & redux
 
 import {connect} from 'react-redux';
@@ -20,7 +20,27 @@ import {useHistory} from 'react-router-dom'
 
 
 function Favorite({logoutUser,user}) {
+  const [favorites, setFavorites] = useState([]);
+  const _id = user._id;
+  useEffect(() => {
     
+    _id &&
+      axios
+        .post("http://localhost:3001/favorite/getFavoritedProducts", { _id })
+        .then((response) => {
+          console.log(response);
+          if (response.data.success) {
+            // setFavorited(response.data.favorites);
+            
+            setFavorites(response.data.favorites);
+          } else {
+            alert("Failed to get Favorite Information");
+          }
+        });
+  }, [user._id]);  
+
+
+
     const history = useHistory();
     console.log(user)
   return (
@@ -28,8 +48,8 @@ function Favorite({logoutUser,user}) {
       <Div>
       <StyledTitle size={65}>Favorite Products by {user.name}</StyledTitle>
  
-      
-      <FavoriteData/></Div>
+      {favorites && favorites.length > 0 &&
+      <FavoriteData favorite={favorites}/>}</Div>
     </div>
   );
 }

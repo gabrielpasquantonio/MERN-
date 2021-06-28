@@ -1,89 +1,98 @@
 import React, { useState, useEffect } from "react";
 import customData from "./data.json";
 import styled from "styled-components";
-import { connect } from "react-redux";
+
 import FavoriteButton from "./FavoriteButton";
 import axios from "axios";
 
 function Data({ authenticated, user }) {
-  const data = customData;
-  const userid = user._id;
+  const [products, setProducts] = useState(customData);
+  const _id = user._id;
   //const [Favorited, setFavorited] = useState(false);
-  console.log(userid)
-  const variables = {
-    productId: data.title,
-    userFrom: userid,
-    productName: data.title,
-    productImage: data.imageLink,
-    productAuthor: data.author,
-  };
+  console.log(user._id);
 
   useEffect(() => {
-  
-
+    _id &&
       axios
-      .post(
-        "https://infinite-basin-79388.herokuapp.com/favorite/favorited",
-        variables
-      )
-      .then((response) => {
-        
-        if (response.data.success) {
-         
-         // setFavorited(response.data.favorites);  
-        } else {
-          alert("Failed to get Favorite Information");
-        }
-      });
-    
-       
-      }, []);
-    
-      const onClickFavorite = (favorite) => {
-        if (favorite) {
-          //when already added
-          axios
-            .post(
-              "https://infinite-basin-79388.herokuapp.com/favorite/removeFromFavorite",
-              variables
-            )
-            .then((response) => {
-              if (response.data.success) {
-               
-                //setFavorited(!Favorited);
-              } else {
-                alert("Failed to remove from Favorites");
-              }
+        .post("https://infinite-basin-79388.herokuapp.com/favorite/getFavoritedProducts", { _id })
+        .then((response) => {
+          if (response.data.success) {
+            // setFavorited(response.data.favorites);
+            const array = customData.map((product) => {
+              const favorite = response.data.favorites.find(
+                (favoriteItem) => favoriteItem === product.title
+              );
+              const result = {
+                ...product,
+                favorite: favorite ? true : false,
+              };
+              return result;
             });
-        } else {
-          //when not adding yet
-          axios
-            .post(
-              "https://infinite-basin-79388.herokuapp.com/favorite/addToFavorite",
-              variables
-            )
-            .then((response) => {
-              if (response.data.success) {
-                //setFavorited(!Favorited);
-              } else {
-                alert("Failed to add to Favorites");
+            setProducts(array);
+          } else {
+            alert("Failed to get Favorite Information");
+          }
+        });
+  }, [user._id]);
+
+  const onClickFavorite = (favorite, title) => {
+    const payload = {
+      userFrom: user._id,
+      favorite: title,
+    };
+    if (favorite) {
+      //when already added
+      axios
+        .post("https://infinite-basin-79388.herokuapp.com/favorite/removeFromFavorite", payload)
+        .then((response) => {
+          if (response.data.success) {
+            //setFavorited(!Favorited);
+            const array = products.map((product) => {
+              if (product.title === title) {
+                return {
+                  ...product,
+                  favorite:false
+                }
               }
+              return product
+              
             });
-        }
-      };
-
-
-
-
-
-
+            setProducts(array);
+          } else {
+            alert("Failed to remove from Favorites");
+          }
+        });
+    } else {
+      //when not adding yet
+      axios
+        .post("https://infinite-basin-79388.herokuapp.com/favorite/addToFavorite", payload)
+        .then((response) => {
+          if (response.data.success) {
+            //setFavorited(!Favorited);
+            const array = products.map((product) => {
+              if (product.title === title) {
+                return {
+                  ...product,
+                  favorite:true
+                }
+              }
+              return product
+              
+            });
+            setProducts(array);
+          } else {
+            alert("Failed to add to Favorites");
+          }
+        });
+    }
+  };
 
   return (
     <div className="App">
       <Content>
-        {data &&
-          data.length > 0 &&
-          data.map((item) => (
+        {products &&
+          products.length > 0 &&
+          products.map((item) => (
             <Card>
               <Wrap key={item.title}>
                 <p>{item.author}</p>{" "}
@@ -101,7 +110,12 @@ function Data({ authenticated, user }) {
                   </SubDiv>
                   {authenticated && user ? (
                     <SubDiv>
-                      <FavoriteButton  onClickFavorite={ ()=> onClickFavorite(data.favorite)} Favorited={data.favorite} />
+                      <FavoriteButton
+                        onClickFavorite={() =>
+                          onClickFavorite(item.favorite, item.title)
+                        }
+                        favorite={item.favorite}
+                      />
                     </SubDiv>
                   ) : (
                     <SubDiv
@@ -220,8 +234,4 @@ const SubDiv = styled.div`
   cursor: pointer;
 `;
 
-const mapStateToProps = ({ session }) => ({
-  authenticated: session.authenticated,
-  user: session.user,
-});
-export default connect(mapStateToProps)(Data);
+export default Data;

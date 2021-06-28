@@ -5,62 +5,57 @@ import { connect } from "react-redux";
 import FavoriteButton from "./FavoriteButton";
 import axios from "axios";
 
-function FavoriteData({ authenticated, user }) {
+function FavoriteData({ authenticated, user,favorite }) {
   const data = customData;
   const userid = user._id;
+  
+
   const [FavoritedProducts, setFavoritedProducts] = useState([]);
   const variables = { userFrom: userid };
 
   useEffect(() => {
-    fetchFavoritedProducts();
+    
+    const array = data.filter(item =>{
+      return favorite.find(favoriteItem => favoriteItem === item.title) 
+    });
+    setFavoritedProducts(array)
   }, []);
 
-  const fetchFavoritedProducts = () => {
-    axios
-      .post(
-        "https://infinite-basin-79388.herokuapp.com/favorite/getFavoritedProducts",
-        variables
-      )
-      .then((response) => {
-        console.log(response.data.favorites);
-        if (response.data.success) {
-          setFavoritedProducts(response.data.favorites);
-        } else {
-          alert("Failed to get favorited products");
-        }
-      });
-  };
+  
 
-  const onClickDelete = (productId, userFrom) => {
-    const variables = {
-      productId: productId,
-      userFrom: userFrom,
+  const onClickDelete = (title) => {
+    const payload = {
+      userFrom: user._id,
+      favorite: title,
     };
 
     axios
-      .post(
-        "https://infinite-basin-79388.herokuapp.com/favorite/removeFromFavorite",
-        variables
-      )
-      .then((response) => {
-        if (response.data.success) {
-          fetchFavoritedProducts();
-        } else {
-          alert("Failed to Remove From Favorite");
-        }
-      });
+    .post("https://infinite-basin-79388.herokuapp.com/favorite/removeFromFavorite", payload)
+    .then((response) => {
+      if (response.data.success) {
+        //setFavorited(!Favorited);
+        const array = FavoritedProducts.filter((product) => {
+          return product.title !== title
+          
+        });
+        setFavoritedProducts(array);
+      } else {
+        alert("Failed to remove from Favorites");
+      }
+    });
   };
 
   return (
     <div className="App">
       <Content>
         {FavoritedProducts &&
-          FavoritedProducts.length > 0 &&
+          
           FavoritedProducts.map((item) => (
             <Card>
-              <Wrap key={item.productId}>
-                <p>{item.productId}</p>{" "}
-                <img src={`../${item.productImage}`} alt={item.productId} />
+
+              <Wrap key={item.title}>
+                <p>{item.title}</p>{" "}
+                <img src={`../${item.imageLink}`} alt={item.title} />
               </Wrap>
               <Bottom>
                 <Div>
@@ -69,17 +64,17 @@ function FavoriteData({ authenticated, user }) {
                       <H4>Author: {item.author} </H4>
                     </div>
                     <div>
-                      <H4> Title: {item.productId}</H4>
+                      <H4> Title: {item.title}</H4>
                     </div>
                   </SubDiv>
                   <SubDiv>
                     <button
-                      onClick={() =>
-                        onClickDelete(item.productId, item.userFrom)
-                      }
+                       onClick={() =>
+                         onClickDelete(item.title)
+                       }
                     >
                       {" "}
-                      Refffmove{" "}
+                      Remove{" "}
                     </button>
                   </SubDiv>
                 </Div>
