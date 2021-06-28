@@ -26,7 +26,7 @@ function Favorite({logoutUser,user}) {
     
     _id &&
       axios
-        .post("http://localhost:3001/favorite/getFavoritedProducts", { _id })
+        .post("https://infinite-basin-79388.herokuapp.com/favorite/getFavoritedProducts", { _id })
         .then((response) => {
           console.log(response);
           if (response.data.success) {
