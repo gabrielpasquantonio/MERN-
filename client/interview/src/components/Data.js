@@ -14,7 +14,10 @@ function Data({ authenticated, user }) {
   useEffect(() => {
     _id &&
       axios
-        .post("https://infinite-basin-79388.herokuapp.com/favorite/getFavoritedProducts", { _id })
+        .post(
+          "https://infinite-basin-79388.herokuapp.com/favorite/getFavoritedProducts",
+          { _id }
+        )
         .then((response) => {
           if (response.data.success) {
             // setFavorited(response.data.favorites);
@@ -43,7 +46,10 @@ function Data({ authenticated, user }) {
     if (favorite) {
       //when already added
       axios
-        .post("https://infinite-basin-79388.herokuapp.com/favorite/removeFromFavorite", payload)
+        .post(
+          "https://infinite-basin-79388.herokuapp.com/favorite/removeFromFavorite",
+          payload
+        )
         .then((response) => {
           if (response.data.success) {
             //setFavorited(!Favorited);
@@ -51,11 +57,10 @@ function Data({ authenticated, user }) {
               if (product.title === title) {
                 return {
                   ...product,
-                  favorite:false
-                }
+                  favorite: false,
+                };
               }
-              return product
-              
+              return product;
             });
             setProducts(array);
           } else {
@@ -65,7 +70,10 @@ function Data({ authenticated, user }) {
     } else {
       //when not adding yet
       axios
-        .post("https://infinite-basin-79388.herokuapp.com/favorite/addToFavorite", payload)
+        .post(
+          "https://infinite-basin-79388.herokuapp.com/favorite/addToFavorite",
+          payload
+        )
         .then((response) => {
           if (response.data.success) {
             //setFavorited(!Favorited);
@@ -73,11 +81,10 @@ function Data({ authenticated, user }) {
               if (product.title === title) {
                 return {
                   ...product,
-                  favorite:true
-                }
+                  favorite: true,
+                };
               }
-              return product
-              
+              return product;
             });
             setProducts(array);
           } else {

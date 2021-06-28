@@ -27,7 +27,7 @@ function Header({authenticated,logoutUser}) {
         </NavLink>
         <NavLink exact to="/favorite" className="favorite">
           <a>
-            <span>FAVORITOS</span>
+            <span>FAVORITES</span>
           </a>
         </NavLink>
       

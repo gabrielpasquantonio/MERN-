@@ -1,7 +1,7 @@
 // Dashboard cannot be accessed unless logged in
 
 import { Route, Redirect } from "react-router-dom";
-import {connect} from 'react-redux'
+import { connect } from "react-redux";
 
 const BasicRoute = ({ children, authenticated, ...rest }) => {
   return (
@@ -23,9 +23,7 @@ const BasicRoute = ({ children, authenticated, ...rest }) => {
   );
 };
 
-
-
-const mapStateToProps = ({session}) => ({
-    authenticated:session.authenticated
-})
+const mapStateToProps = ({ session }) => ({
+  authenticated: session.authenticated,
+});
 export default connect(mapStateToProps)(BasicRoute);

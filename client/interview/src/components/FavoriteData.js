@@ -2,26 +2,20 @@ import React, { useState, useEffect } from "react";
 import customData from "./data.json";
 import styled from "styled-components";
 import { connect } from "react-redux";
-import FavoriteButton from "./FavoriteButton";
 import axios from "axios";
 
-function FavoriteData({ authenticated, user,favorite }) {
+function FavoriteData({ user, favorite }) {
   const data = customData;
   const userid = user._id;
-  
 
   const [FavoritedProducts, setFavoritedProducts] = useState([]);
-  const variables = { userFrom: userid };
 
   useEffect(() => {
-    
-    const array = data.filter(item =>{
-      return favorite.find(favoriteItem => favoriteItem === item.title) 
+    const array = data.filter((item) => {
+      return favorite.find((favoriteItem) => favoriteItem === item.title);
     });
-    setFavoritedProducts(array)
+    setFavoritedProducts(array);
   }, []);
-
-  
 
   const onClickDelete = (title) => {
     const payload = {
@@ -30,29 +24,29 @@ function FavoriteData({ authenticated, user,favorite }) {
     };
 
     axios
-    .post("https://infinite-basin-79388.herokuapp.com/favorite/removeFromFavorite", payload)
-    .then((response) => {
-      if (response.data.success) {
-        //setFavorited(!Favorited);
-        const array = FavoritedProducts.filter((product) => {
-          return product.title !== title
-          
-        });
-        setFavoritedProducts(array);
-      } else {
-        alert("Failed to remove from Favorites");
-      }
-    });
+      .post(
+        "https://infinite-basin-79388.herokuapp.com/favorite/removeFromFavorite",
+        payload
+      )
+      .then((response) => {
+        if (response.data.success) {
+          //setFavorited(!Favorited);
+          const array = FavoritedProducts.filter((product) => {
+            return product.title !== title;
+          });
+          setFavoritedProducts(array);
+        } else {
+          alert("Failed to remove from Favorites");
+        }
+      });
   };
 
   return (
     <div className="App">
       <Content>
         {FavoritedProducts &&
-          
           FavoritedProducts.map((item) => (
             <Card>
-
               <Wrap key={item.title}>
                 <p>{item.title}</p>{" "}
                 <img src={`../${item.imageLink}`} alt={item.title} />
@@ -68,11 +62,7 @@ function FavoriteData({ authenticated, user,favorite }) {
                     </div>
                   </SubDiv>
                   <SubDiv>
-                    <button
-                       onClick={() =>
-                         onClickDelete(item.title)
-                       }
-                    >
+                    <button onClick={() => onClickDelete(item.title)}>
                       {" "}
                       Remove{" "}
                     </button>
@@ -93,11 +83,7 @@ const H4 = styled.h4`
     font-size: smaller;
   }
 `;
-const H1 = styled.h1`
-  @media (max-width: 768px) {
-    font-size: x-large;
-  }
-`;
+
 const Content = styled.div`
   padding: 10px;
   margin-top: 100px;
